@@ -1,53 +1,50 @@
-var http = require('http');
-var fs = require('fs');
-var promisify = require('util').promisify;
+const http = require('http');
+const fs = require('fs');
+const promisify = require('util').promisify;
 
-var writeFile = promisify(fs.writeFile);
-var readFile = promisify(fs.readFile);
+const writeFile = promisify(fs.writeFile);
+const readFile = promisify(fs.readFile);
 
-var server = http.createServer(function(req, res) {
-    var readbody = function(req, callback) {
-        var body = '';
-        req.on('data', function(chunk) {
-            body += chunk.toString();
-        });
-        req.on('end', function() {
-            callback(body);
-        });
+let server = http.createServer((req, res) => {
+    let readbody = (req, callback) => {
+        let body = '';
+        req.on('data', chunk => body += chunk.toString());
+        req.on('end', () => callback(body));
     };
-
-    var contactPrefix = '/contacts/';
+    
+    let contactPrefix = '/contacts/';
     if (req.url === '/contacts' && req.method === 'GET') {
-        readFile('hobbit.json').then(function(data) {
-            var dataString = data.toString();
+        readFile('hobbit.json').then(data => {
+            let dataString = data.toString();
             res.end(dataString);
         });
     } else if (req.url.startsWith(contactPrefix) && req.method === 'GET') {
-        readFile('hobbit.json').then(function(data) {
-            var dataJSON = JSON.parse(data.toString());
-            var name = req.url.slice(contactPrefix.length);
+        readFile('hobbit.json').then(data => {
+            let dataJSON = JSON.parse(data.toString());
+            let name = req.url.slice(contactPrefix.length);
             res.end('You asked for ' + JSON.stringify(dataJSON[name]));
         });
     } else if (req.url.startsWith(contactPrefix) && req.method === 'DELETE') {
-        readFile('hobbit.json').then(function(data) {
-            var dataJSON = JSON.parse(data.toString());
-            var name = req.url.slice(contactPrefix.length);
+        readFile('hobbit.json').then(data => {
+            let dataJSON = JSON.parse(data.toString());
+            let name = req.url.slice(contactPrefix.length);
             delete dataJSON[name];
             res.end('success');
         });
     } else if (req.url.startsWith(contactPrefix) && req.method === 'POST') {
-        readbody(req, function(body) {
-            var contact = JSON.parse(body);
-            readFile('hobbit.json').then(function(data) {
-                var dataJSON = JSON.parse(data.toString());
-                var newArr = dataJSON.push(contact);
+        readbody(req, body => {
+            let contact = JSON.parse(body);
+            readFile('hobbit.json').then(data => {
+                let dataJSON = JSON.parse(data.toString());
+                let newArr = dataJSON.push(contact);
+
                 JSON.stringify(newArr);
             });
             res.end('created contact');
         });
     } else if (req.url.startsWith(contactPrefix) && req.method === 'PUT') {
-        readbody(req, function(body) {
-            var contact = JSON.parse(body);;
+        readbody(req, body => {
+            let contact = JSON.parse(body);
             res.end('created contact');
         });
     }
