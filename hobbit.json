@@ -1,0 +1,11 @@
+[
+    { 
+        "frodo": {"address": "The Shire"}
+    },
+    {
+        "samwise": {"address": "The Shire"}
+    },
+    {
+        "bilbo": {"address": "The Shire"}
+    }
+]
