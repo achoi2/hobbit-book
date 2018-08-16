@@ -11,8 +11,9 @@ let server = http.createServer((req, res) => {
         req.on('data', chunk => body += chunk.toString());
         req.on('end', () => callback(body));
     };
-    
+
     let contactPrefix = '/contacts/';
+    
     if (req.url === '/contacts' && req.method === 'GET') {
         readFile('hobbit.json').then(data => {
             let dataString = data.toString();
@@ -34,11 +35,9 @@ let server = http.createServer((req, res) => {
     } else if (req.url.startsWith(contactPrefix) && req.method === 'POST') {
         readbody(req, body => {
             let contact = JSON.parse(body);
-            readFile('hobbit.json').then(data => {
-                let dataJSON = JSON.parse(data.toString());
-                let newArr = dataJSON.push(contact);
-
-                JSON.stringify(newArr);
+            let dataJSON = JSON.stringify(contact)
+            writeFile('hobbit.json', dataJSON).then(() => {
+                console.log('success')
             });
             res.end('created contact');
         });
