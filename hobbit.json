@@ -1,11 +1,23 @@
 [
-    { 
-        "frodo": {"address": "The Shire"}
+    {
+        "name": "frodo",
+        "address": "The Shire",
+        "email": "frodo@gmail.com",
+        "phone": "123-456-7890",
+        "id": "1"
     },
     {
-        "samwise": {"address": "The Shire"}
+        "name": "samwise",
+        "address": "The Shire",
+        "email": "samwise@gmail.com",
+        "phone": "222-2222-2222",
+        "id": "2"
     },
     {
-        "bilbo": {"address": "The Shire"}
+        "name": "bilbo",
+        "address": "The Shire",
+        "email": "bilbo@gmail.com",
+        "phone": "333-333-3333",
+        "id": "3"
     }
 ]

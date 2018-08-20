@@ -35,7 +35,7 @@ let deleteContact = (req, res) => {
     });
 };
 
-let postContact = (req, res) => {
+let createContact = (req, res) => {
     readbody(req, body => {
         let contact = JSON.parse(body);
         let dataJSON = JSON.stringify(contact);
@@ -46,27 +46,51 @@ let postContact = (req, res) => {
     });
 };
 
-let putContact = (req, res) => {
-    readbody(req, body => {
-        let contact = JSON.parse(body);
-        res.end('created contact');
+let fileServe = (req, res) => {
+    
+    readFile(req.url.slice(1)).then(data => {
+        res.end(data);
+    }).catch(err => {
+        notfound(err, res)
     });
 };
 
-let contactPrefix = '/contacts/';
+let notfound = (err, res) => {
+    res.end(JSON.stringify(err));
+};
+
+const routes = [
+    {
+        method: 'GET',
+        url: /^\/contacts\/[0-9]+$/,
+        run: getContact
+    },
+    {
+        method: 'DELETE',
+        url: /^\/contacts\/[0-9]+$/,
+        run: deleteContact
+    },
+    {
+        method: 'GET',
+        url: /^\/contacts\/?$/,
+        run: getContacts
+    },
+    {
+        method: 'POST',
+        url: /^\/contacts\/?$/,
+        run: createContact
+    },
+    {
+        method: 'GET',
+        url: /^.*$/,
+        run: fileServe
+    }
+];
+
 
 let server = http.createServer((req, res) => {
-    if (req.url === '/contacts' && req.method === 'GET') {
-        getContacts(req, res);
-    } else if (req.url.startsWith(contactPrefix) && req.method === 'GET') {
-        getContact(req, res);
-    } else if (req.url.startsWith(contactPrefix) && req.method === 'DELETE') {
-        deleteContact(req, res);
-    } else if (req.url.startsWith(contactPrefix) && req.method === 'POST') {
-        postContact(req, res);
-    } else if (req.url.startsWith(contactPrefix) && req.method === 'PUT') {
-        putContact(req, res);
-    }
+    let route = routes.find(route => route.url.test(req.url) && req.method === route.method);
+    route.run(req, res);
 });
 
 server.listen(3000);
