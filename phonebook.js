@@ -5,13 +5,8 @@ const pg = require('pg-promise')();
 const dbConfig = 'postgres://andrewchoi@localhost:5432/phonebook';
 const db = pg(dbConfig);
 
-const writeFile = promisify(fs.writeFile);
+// const writeFile = promisify(fs.writeFile);
 const readFile = promisify(fs.readFile);
-
-db.query('select * from people;')
-    .then((results) => {
-        console.log(results)
-    });
 
 let readbody = (req, callback) => {
     let body = '';
@@ -20,22 +15,23 @@ let readbody = (req, callback) => {
 };
 
 let getContacts = (req, res) => {
-    readFile('hobbit.json').then(data => {
-        let dataString = data.toString();
-        res.end(dataString);
+    db.query('select * from people;').then(data => {
+        let dataJSON = JSON.stringify(data);
+        res.end(dataJSON);
     });
 };
 
 let getContact = (req, res) => {
-    readFile('hobbit.json').then(data => {
-        let dataJSON = JSON.parse(data.toString());
-        let name = req.url.slice(contactPrefix.length);
-        res.end('You asked for ' + JSON.stringify(dataJSON[name]));
+    db.query('select name, from people;').then(data => {
+        // let dataJSON = JSON.parse(data.toString());
+        // console.log(dataJSON);
+        // let name = req.url.slice(contactPrefix.length);
+        // res.end('You asked for ' + JSON.stringify(dataJSON[name]));
     });
 };
 
 let deleteContact = (req, res) => {
-    readFile('hobbit.json').then(data => {
+    db.query('select * from people;').then(data => {        
         let dataJSON = JSON.parse(data.toString());
         let name = req.url.slice(contactPrefix.length);
         delete dataJSON[name];
@@ -55,11 +51,13 @@ let createContact = (req, res) => {
 };
 
 let fileServe = (req, res) => {
-    readFile(req.url.slice(1)).then(data => {
-        res.end(data);
-    }).catch(err => {
-        notfound(err, res)
-    });
+    readFile(req.url.slice(1))
+        .then(data => {
+            res.end(data);
+        })
+        .catch(err => {
+            notfound(err, res);
+        });
 };
 
 let notfound = (err, res) => {
@@ -94,9 +92,10 @@ const routes = [
     }
 ];
 
-
 let server = http.createServer((req, res) => {
-    let route = routes.find(route => route.url.test(req.url) && req.method === route.method);
+    let route = routes.find(
+        route => route.url.test(req.url) && req.method === route.method
+    );
     route.run(req, res);
 });
 
