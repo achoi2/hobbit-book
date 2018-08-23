@@ -1,9 +1,17 @@
 const http = require('http');
 const fs = require('fs');
 const promisify = require('util').promisify;
+const pg = require('pg-promise')();
+const dbConfig = 'postgres://andrewchoi@localhost:5432/phonebook';
+const db = pg(dbConfig);
 
 const writeFile = promisify(fs.writeFile);
 const readFile = promisify(fs.readFile);
+
+db.query('select * from people;')
+    .then((results) => {
+        console.log(results)
+    });
 
 let readbody = (req, callback) => {
     let body = '';
@@ -47,7 +55,6 @@ let createContact = (req, res) => {
 };
 
 let fileServe = (req, res) => {
-    
     readFile(req.url.slice(1)).then(data => {
         res.end(data);
     }).catch(err => {
